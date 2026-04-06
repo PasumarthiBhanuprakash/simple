@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Predictive Maintenance</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: linear-gradient(135deg,#0f172a,#1e293b);
+    color: white;
+    text-align: center;
+}
+
+.container {
+    width: 450px;
+    margin: auto;
+    margin-top: 40px;
+    padding: 20px;
+    border-radius: 15px;
+    background: #1e293b;
+    box-shadow: 0 0 20px black;
+    animation: fadeIn 1s;
+}
+
+input, select {
+    width: 90%;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5px;
+}
+
+input[type=range] {
+    width: 90%;
+}
+
+button {
+    padding: 12px;
+    width: 95%;
+    background: #38bdf8;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    transform: scale(1.05);
+}
+
+.value {
+    color: #38bdf8;
+}
+
+.result {
+    margin-top: 20px;
+    font-size: 20px;
+    animation: fadeIn 1s;
+}
+
+.fail { color: red; }
+.safe { color: lightgreen; }
+
+.toggle {
+    cursor: pointer;
+    color: #38bdf8;
+}
+
+@keyframes fadeIn {
+    from {opacity:0; transform: translateY(20px);}
+    to {opacity:1; transform: translateY(0);}
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>🔧 Predictive Maintenance</h2>
+<p>LSTM-based machine failure prediction</p>
+
+<div class="toggle" onclick="toggleTemp()">🌡 Toggle K / °C</div>
+
+<form method="POST">
+
+<select name="type">
+<option value="0">Machine L</option>
+<option value="1">Machine M</option>
+<option value="2">Machine H</option>
+</select>
+
+<input type="number" id="air" name="air_temp" placeholder="Air Temp (K)" required>
+<input type="number" id="proc" name="proc_temp" placeholder="Process Temp (K)" required>
+
+<label>⚙️ RPM</label>
+<input type="range" name="rpm" min="500" max="3000" value="1500"
+oninput="rpmVal.innerText=this.value">
+<div class="value">RPM: <span id="rpmVal">1500</span></div>
+
+<label>🔩 Torque</label>
+<input type="range" name="torque" min="0" max="100" value="40"
+oninput="torqueVal.innerText=this.value">
+<div class="value">Torque: <span id="torqueVal">40</span> Nm</div>
+
+<label>🛠 Tool Wear</label>
+<input type="range" name="tool_wear" min="0" max="250" value="10"
+oninput="wearVal.innerText=this.value">
+<div class="value">Wear: <span id="wearVal">10</span> min</div>
+
+<button type="submit">Predict 🚀</button>
+
+</form>
+
+{% if prediction is not none %}
+<div class="result">
+{% if prediction > 0.5 %}
+<div class="fail">⚠️ Failure Likely ({{ prediction|round(2) }})</div>
+{% else %}
+<div class="safe">✅ Healthy ({{ prediction|round(2) }})</div>
+{% endif %}
+</div>
+{% endif %}
+
+</div>
+
+<script>
+let isC = false;
+
+function toggleTemp() {
+    let air = document.getElementById("air");
+    let proc = document.getElementById("proc");
+
+    if (!isC) {
+        air.value = air.value ? air.value - 273 : "";
+        proc.value = proc.value ? proc.value - 273 : "";
+        air.placeholder = "Air Temp (°C)";
+        proc.placeholder = "Proc Temp (°C)";
+    } else {
+        air.value = air.value ? parseFloat(air.value) + 273 : "";
+        proc.value = proc.value ? parseFloat(proc.value) + 273 : "";
+        air.placeholder = "Air Temp (K)";
+        proc.placeholder = "Proc Temp (K)";
+    }
+
+    isC = !isC;
+}
+</script>
+
+</body>
+</html>
